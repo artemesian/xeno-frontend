@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Send from "../assets/send.png";
 
-const ChatInput = ({ sendMessage }) => {
+const ChatInput = ({ sendMessage, waitingForResponse }) => {
   const [message, setMessage] = useState("");
 
   const onMessageSubmit = (e) => {
@@ -50,6 +50,7 @@ const ChatInput = ({ sendMessage }) => {
           borderRadius: "150px",
           color: "white",
         }}
+        disabled={waitingForResponse}
       />
       <button
         onClick={(e) => onMessageSubmit(e)}
@@ -68,6 +69,7 @@ const ChatInput = ({ sendMessage }) => {
           border: "none",
           padding: "15px",
         }}
+        disabled={waitingForResponse}
       >
         <img
           src={Send}

@@ -1,5 +1,4 @@
 const Button = ({ onClick, children, ...props }) => {
-  console.log(props);
   return (
     <button
       onClick={() => onClick()}

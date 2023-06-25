@@ -1,20 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChatHeader from "../components/chat-header";
 import ChatInput from "../components/chat-input";
 import Message from "../components/message";
 import MessageLoader from "../components/message-loader";
 import "./chat.css";
 
-const ChatPage = () => {
+const ChatPage = ({ socket }) => {
   const [waitingForResponse, setWaitingForResponse] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      content:
-        "Hello, i am the Internet Technologies Chatbot, how can i help you?",
-      author: "xeno",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
 
   const sendMessage = (message) => {
     const newMessage = {
@@ -26,16 +19,46 @@ const ChatPage = () => {
     messageArray.unshift(newMessage);
     setMessages(messageArray);
     setWaitingForResponse(true);
+
     setTimeout(() => {
-      messageArray.unshift({
-        content: "Hi",
+      socket.emit("question", message);
+    }, 1700);
+  };
+
+  useEffect(() => {
+    socket.on("response", (message) => {
+      const newMessage = {
+        content: message,
         author: "xeno",
         timestamp: new Date(),
-      });
+      };
+      let messageArray = [...messages];
+      messageArray.unshift(newMessage);
       setMessages(messageArray);
       setWaitingForResponse(false);
-    }, 2000);
-  };
+    });
+
+    return () => {
+      socket.off("response");
+    };
+  });
+
+  useEffect(() => {
+    setWaitingForResponse(true);
+    setTimeout(() => {
+      const newMessage = {
+          content:
+            "Hello, i am the Internet Technologies Chatbot, how can i help you?",
+          author: "xeno",
+          timestamp: new Date(),
+        },
+        messageArray = [];
+      messageArray.unshift(newMessage);
+      setMessages(messageArray);
+      setWaitingForResponse(false);
+    }, 1500);
+  }, []);
+
   return (
     <div className="chat-page">
       <ChatHeader />
@@ -50,7 +73,7 @@ const ChatPage = () => {
           />
         ))}
       </div>
-      <ChatInput sendMessage={sendMessage} />
+      <ChatInput sendMessage={sendMessage} disabled={waitingForResponse} />
     </div>
   );
 };
